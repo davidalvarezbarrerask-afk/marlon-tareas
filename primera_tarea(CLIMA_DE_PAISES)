@@ -31,7 +31,7 @@ while continuar:
                            timeout=10).json()
 
         if not geo.get("results"):
-            print(f"No encontré el país '{pais}'. Revisa cómo se escribe.")
+            print(f"No encontré el país '{pais}'. APRENDE A ESCRIBIR")
             continue
 
         lugar = geo["results"][0]
@@ -53,7 +53,14 @@ while continuar:
     print("EL CLIMA ES:")
     print(f"{lugar['name']}: {actual['temperature_2m']} °C, {estado}, "
           f"humedad {actual['relative_humidity_2m']}%, viento {actual['wind_speed_10m']} km/h")
-    respuesta = input("¿Desea consultar otro país? (si/no): ").strip().lower()
-    if respuesta == "no":
-        print("BYE MARLON HACKER")
-        continuar = False
+    while True:
+        respuesta = input("¿Desea consultar otro país? (si/no): ").strip().lower()
+
+        if respuesta == "no":
+            print("BYE MARLON HACKER")
+            continuar = False
+            break
+        elif respuesta == "si":
+            break
+        else:
+            print(" RESPONDE BIEN MAMA WEBO *SI O NO* ")
