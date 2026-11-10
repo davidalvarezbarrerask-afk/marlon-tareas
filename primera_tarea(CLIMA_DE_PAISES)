@@ -1,0 +1,59 @@
+
+import requests
+
+CODIGOS = {
+    0: "despejado", 1: "mayormente despejado", 2: "parcialmente nublado", 3: "nublado",
+    45: "niebla", 48: "niebla con escarcha",
+    51: "llovizna ligera", 53: "llovizna moderada", 55: "llovizna intensa",
+    61: "lluvia ligera", 63: "lluvia moderada", 65: "lluvia fuerte",
+    71: "nieve ligera", 73: "nieve moderada", 75: "nieve fuerte",
+    80: "chubascos ligeros", 81: "chubascos moderados", 82: "chubascos fuertes",
+    95: "tormenta", 96: "tormenta con granizo", 99: "tormenta fuerte con granizo",
+}
+
+continuar = True
+
+while continuar:
+
+    pais = input("POR FAVOR ESCRIBA UN PAIS PARA SABER SU CLIMA: ").strip().lower()
+
+    if pais == "":
+        print("YA DEJA DE PONER A PRUEBA EL PROGRAMA Y ESCRIBE UN PAIS")
+        continue
+
+    if pais == "salir":
+        continuar = False
+        continue
+
+    try:
+        geo = requests.get("https://geocoding-api.open-meteo.com/v1/search",
+                           params={"name": pais, "count": 1, "language": "es"},
+                           timeout=10).json()
+
+        if not geo.get("results"):
+            print(f"No encontré el país '{pais}'. Revisa cómo se escribe.")
+            continue
+
+        lugar = geo["results"][0]
+
+        clima = requests.get("https://api.open-meteo.com/v1/forecast",
+                             params={"latitude": lugar["latitude"],
+                                     "longitude": lugar["longitude"],
+                                     "current": "temperature_2m,weather_code,"
+                                                "relative_humidity_2m,wind_speed_10m"},
+                             timeout=10).json()
+
+    except requests.RequestException:
+        print("No hay conexión a internet. Intenta otra vez.")
+        continue
+
+    actual = clima["current"]
+    estado = CODIGOS.get(actual["weather_code"], "desconocido")
+
+    print("EL CLIMA ES:")
+    print(f"{lugar['name']}: {actual['temperature_2m']} °C, {estado}, "
+          f"humedad {actual['relative_humidity_2m']}%, viento {actual['wind_speed_10m']} km/h")
+    respuesta = input("¿Desea consultar otro país? (si/no): ").strip().lower()
+    if respuesta == "no":
+        print("BYE MARLON HACKER")
+        continuar = False
